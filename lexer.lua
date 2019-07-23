@@ -3,7 +3,7 @@
 local lexer = {}
 -- File to be opened
 local file = nil
-local reservedWords = {'print', 'pow', 'sqrt'}
+local reservedWords = {'print'}
 local currentLine = nil
 local currentFileLine = 0
 local currentFileColumn = 0
@@ -81,6 +81,10 @@ function isOperator(token)
   return index[token]
 end
 
+function isDelimiter(token)
+  return token == ';'
+end
+
 function isAlpha(token)
   local characters = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'}
   local index = {}
@@ -90,7 +94,7 @@ function isAlpha(token)
   return index[token]
 end
 -- FSM
-local states = {'identifier','keyword', 'integer', 'real', 'operator'}
+local states = {'id','keyword', 'integer', 'real', 'operator'}
 local tokens = {}
 local currentToken = 0
 
@@ -104,11 +108,16 @@ function lexer.putToken(tokenType, token, row, column)
 end
 
 function lexer.hasNextToken()
-  if currentToken < #tokens then
-    return true
+  if (currentToken + 1) <= #tokens then
+    return {
+      type  = tokens[currentToken + 1].type,
+      value = tokens[currentToken + 1].value,
+      row = tokens[currentToken + 1].row,
+      column = tokens[currentToken + 1].column
+    }
   end
 
-  return false
+  return nil
 end
 
 function lexer.getNextToken()
@@ -133,7 +142,6 @@ function parse()
       charBuffer = charBuffer .. currentChar
 
       if (isReservedWord(charBuffer) and (lookahead == ' ' or lookahead == nil)) then
-        --print('keyword', reservedWords[isReservedWord(charBuffer)] , currentFileLine, ':', (currentFileColumn - string.len(charBuffer) + 1))
         lexer.putToken('keyword', reservedWords[isReservedWord(charBuffer)], currentFileLine, (currentFileColumn - string.len(charBuffer) + 1))
         -- Ignores the whitespace at next position
         getNextChar()
@@ -143,16 +151,16 @@ function parse()
           currentChar = getNextChar()
           charBuffer = charBuffer .. currentChar
         end
-        --print('number', charBuffer , currentFileLine, ':', (currentFileColumn - string.len(charBuffer) + 1))
         lexer.putToken('number', charBuffer, currentFileLine, (currentFileColumn - string.len(charBuffer) + 1))
         charBuffer = ''
       elseif(isOperator(charBuffer)) then
-        --print('operator', charBuffer , currentFileLine, ':', (currentFileColumn - string.len(charBuffer) + 1))
         lexer.putToken('operator', charBuffer, currentFileLine, (currentFileColumn - string.len(charBuffer) + 1))
         charBuffer = ''
+      elseif(isDelimiter(charBuffer)) then
+        lexer.putToken('delimiter', charBuffer, currentFileLine, (currentFileColumn - string.len(charBuffer) + 1))
+        charBuffer = ''
       elseif(isAlpha(currentChar) and not isReservedWord(charBuffer) and (lookahead == ' ' or lookahead == nil)) then
-        --print('identifier', charBuffer , currentFileLine, ':', (currentFileColumn - string.len(charBuffer) + 1))
-        lexer.putToken('identifier', charBuffer, currentFileLine, (currentFileColumn - string.len(charBuffer) + 1))
+        lexer.putToken('id', charBuffer, currentFileLine, (currentFileColumn - string.len(charBuffer) + 1))
         getNextChar()
         charBuffer = ''
       end

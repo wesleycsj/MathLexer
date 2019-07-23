@@ -1,0 +1,20 @@
+S-> V = E  | print(E)
+E-> E + T | E - T | T
+T-> T*F | T/F  | F
+F-> (E) | V | N
+V-> identifier
+N-> number
+
+First
+E = {( , id, number}
+T = {( , id, number}
+F = {( , id, number}
+V = {id}
+N = {number}
+
+Follow
+E = {$, +, - , )}
+T = {$, +, - , ), *, /}
+F = {$, +, - , ), *, /}
+V = {$, +, - , ), *, /, =}
+N = {$, +, - , ), *, /}
