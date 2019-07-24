@@ -125,6 +125,13 @@ function lexer.getNextToken()
   return tokens[currentToken]
 end
 
+function lexer.printTokens()
+  currentState = 0
+  for k,v in pairs(tokens) do
+    print(v.value, v.type)
+  end
+end
+
 function parse()
   --openFile()
   currentLine = getNextLine()
@@ -133,11 +140,11 @@ function parse()
     currentChar = getNextChar()
     charBuffer = ''
     while currentChar do
-      local lookahead = getLookAHead()
       --ignore whitespaces
       while currentChar == ' ' do
         currentChar = getNextChar()
       end
+      local lookahead = getLookAHead()
 
       charBuffer = charBuffer .. currentChar
 
@@ -159,9 +166,10 @@ function parse()
       elseif(isDelimiter(charBuffer)) then
         lexer.putToken('delimiter', charBuffer, currentFileLine, (currentFileColumn - string.len(charBuffer) + 1))
         charBuffer = ''
-      elseif(isAlpha(currentChar) and not isReservedWord(charBuffer) and (lookahead == ' ' or lookahead == nil)) then
+      --elseif(isAlpha(currentChar) and not isReservedWord(charBuffer) and (lookahead == ' ' or lookahead == nil)) then
+      elseif(isAlpha(currentChar) and not isReservedWord(charBuffer) and (not isAlpha(lookahead) or lookahead == nil)) then
         lexer.putToken('id', charBuffer, currentFileLine, (currentFileColumn - string.len(charBuffer) + 1))
-        getNextChar()
+        --getNextChar()
         charBuffer = ''
       end
       currentChar = getNextChar()

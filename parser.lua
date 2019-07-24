@@ -208,4 +208,4 @@ while(isAccepting and lexer.hasNextToken()) do
   end
 end
 
---printStack()
+lexer.printTokens()
