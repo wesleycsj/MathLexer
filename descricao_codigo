@@ -1,0 +1,44 @@
+O arquivo 'lexer.lua' é responsável pela análise léxica de um arquivo .txt passado como argumento.
+
+Como o código é feito na linguagem de programação LUA, ele foi programado como um módulo de aplicação, viabilizando
+a comunicação entre analisador léxico e sintático.
+
+Entre as linhas 3 e 10 do arquivo são definidas as variáveis locais:
+
+'lexer' que é o próprio módulo do analisador léxico
+
+'file' que é a variável responsável por fazer referência ao arquivo de texto
+
+'reservedWords' que é uma array com a lista de palavras reservadas que o analisador é capaz de reconhecer
+
+'currentLine' variável responsável por armazenar a posição de linhas atual a ser analisada pelo programa
+
+Na linha 12 a função parseFile é responsável por receber um argumento com o arquivo de texto, abrir a stream para o arquivo,chamar
+a função de geração de tokens e fechar a stream com o arquivo aberto.
+
+Na linha 19 a função 'getNextLine' é responsável por receber a próxima linha a ser lida do arquivo.
+
+Na linha 41 a função 'getNextChar' é responsável por apontar para o próximo caractere na linha e armazenar seu estado.
+
+Na linha 50 a função 'getLookAHead' é responsável por verificar qual é o próximo caractere seguinte ao
+estado atual(posição de coluna na linha que está sendo lido), caso esse caractere não exista, retorna nulo.
+
+Na linha 58 'isReservedWord' é uma função responsável por receber um argumento e identificar esse argumento na array de palavras reservadas,
+caso exista, retorna a posição dessa palavra na array.
+
+As próximas funções são 'isNumber', 'isOperator', 'isDelimiter', 'isAlpha'. Essas funções desempenham o mesmo comportamento da função 'isReservedWord'
+aplicadas a seus respectivos tipos de token, indicados pelo nome das funções.
+
+Na linha 101 a função 'putToken' é responsável por armazenar na lista o token que é passado por argumento.
+
+Na linha 110 a função 'hasNextToken' é responsável por avaliar se há um próximo token, sem alterar o estado do token atual.
+
+Na linha 123 a função 'getNextToken' é responsável por apontar para o próximo token na lista.
+
+Na linha 128 a função 'printTokens' simplesmente imprime todos os tokens na lista, indicando seu valor e tipo.
+
+Na linha 135 a função 'parse' é a função responsável por percorrer todas as linhas e todos os caracteres de cada linha em loop,
+sempre utilizando uma variável 'lookahead' para obter informação sobre o próximo caractere a ser lido. Aqui é utilizado um encadeamento
+de if-else para testar cada possível tipo de dado por meio das funções: 'isReservedWord', 'isNumber', 'isOperator', 'isDelimiter', 'isAlpha'.
+Caso haja correspondência da cadeia de caracteres armazenada em um buffer(a variável 'charBuffer'), essa cadeia é adicionada na lista através da
+função 'putToken', indicando seu tipo, se tornando um token.

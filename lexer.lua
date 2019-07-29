@@ -148,7 +148,7 @@ function parse()
 
       charBuffer = charBuffer .. currentChar
 
-      if (isReservedWord(charBuffer) and (lookahead == ' ' or lookahead == nil)) then
+      if (isReservedWord(charBuffer) and (not isAlpha(lookahead) or lookahead == nil)) then
         lexer.putToken('keyword', reservedWords[isReservedWord(charBuffer)], currentFileLine, (currentFileColumn - string.len(charBuffer) + 1))
         -- Ignores the whitespace at next position
         getNextChar()
