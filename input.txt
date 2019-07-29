@@ -1,2 +1,2 @@
 x = zy * (x + y);
-print(3+4);
+print(zy * (x + y));

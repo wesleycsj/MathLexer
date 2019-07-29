@@ -41,6 +41,7 @@ Terminals['*'] = 7
 Terminals['%'] = 8
 Terminals['#'] = 9
 Terminals['$'] = 10
+Terminals['='] = 11
 
 local nonTerminals = {}
 nonTerminals['S'] = 1
@@ -98,14 +99,19 @@ end
 
 
 function pushInput(element)
-  if #element > 1 then
+  if type(element) == table then
     local inputString = (element.value)
-    for i=1,#inputString do
+    print('inputString:', inputString)
+    -- for i=1,#inputString do
+    --   table.insert(input, {
+    --     value = string.sub(inputString, i ,i),
+    --     type  = element.type
+    --   })
+    -- end
       table.insert(input, {
-        value = string.sub(inputString, i ,i),
+        value = inputString,
         type  = element.type
       })
-    end
   elseif table.insert(input, element) then
       return true
   end
@@ -130,18 +136,19 @@ function getInputTop()
 end
 -- Print both Stack and Input elements
 function printStack()
-  print('stack')
+  local stackBuffer = ''
+  local inputBuffer = ''
   for k,v in pairs(stack) do
-    print(v)
+    stackBuffer = stackBuffer .. v
   end
-  print('input')
   for k,v in pairs(input) do
     if v ~= '$' then
-      print(v.value)
+      inputBuffer = inputBuffer .. v.value
     else
-      print('$')
+      inputBuffer = inputBuffer .. '$'
     end
   end
+  print('Stack:' .. stackBuffer .. " Input:" .. inputBuffer)
 end
 
 -- Parse
@@ -160,7 +167,7 @@ function parse()
   -- Tests if accepts or not
   if #stack <= 1 and #input > 1 then
     return false
-  elseif Terminals[stackTopElement] ~= Terminals[inputTopElement.value] and stackTopElement ~= inputTopElement then
+  elseif (Terminals[stackTopElement] ~= nil and Terminals[inputTopElement] ~= nil) and (stackTopElement ~= inputTopElement) then
     return false
   elseif stackTopElement == '$' and inputTopElement == '$' then
     return true
@@ -199,6 +206,7 @@ while(isAccepting and lexer.hasNextToken()) do
     token = lexer.getNextToken()
   end
   initStack()
+
   isAccepting = parse()
 
   if isAccepting then
@@ -208,4 +216,4 @@ while(isAccepting and lexer.hasNextToken()) do
   end
 end
 
-lexer.printTokens()
+--lexer.printTokens()
