@@ -2,7 +2,7 @@
 -- parser of math language
 local parser = {}
 local lexer = require 'lexer'
-
+local lineCount = 0
 lexer.parseFile(arg[1])
 
 -- Both stacks, stack stores productions, and input the input string to be parsed
@@ -168,6 +168,7 @@ function parse()
   if #stack <= 1 and #input > 1 then
     return false
   elseif (Terminals[stackTopElement] ~= nil and Terminals[inputTopElement] ~= nil) and (stackTopElement ~= inputTopElement) then
+    print('ERROR: Expected a `' .. stackTopElement .. '` instead a `' .. inputTopElement .. '` at line ' .. lineCount)
     return false
   elseif stackTopElement == '$' and inputTopElement == '$' then
     return true
@@ -198,6 +199,7 @@ end
 
 local isAccepting = true
 while(isAccepting and lexer.hasNextToken()) do
+  lineCount = lineCount + 1
   local token = lexer.getNextToken()
   -- Push all elements until a delimiter ;
   clearStack()
