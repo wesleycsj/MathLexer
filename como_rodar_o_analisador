@@ -1,0 +1,5 @@
+Através de comandos de cd, aponte o terminal para a pasta do projeto MathLexer
+
+Assegurando-se que o lua está instalado em sua máquina execute o seguinte comando:
+
+lua parser.lua input.txt
