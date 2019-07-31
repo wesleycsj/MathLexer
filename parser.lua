@@ -2,6 +2,7 @@
 -- parser of math language
 local parser = {}
 local lexer = require 'lexer'
+local Tree = require 'tree'
 local lineCount = 0
 lexer.parseFile(arg[1])
 
@@ -99,19 +100,14 @@ end
 
 
 function pushInput(element)
-  if type(element) == table then
+  if type(element) == 'table' then
     local inputString = (element.value)
-    print('inputString:', inputString)
-    -- for i=1,#inputString do
-    --   table.insert(input, {
-    --     value = string.sub(inputString, i ,i),
-    --     type  = element.type
-    --   })
-    -- end
       table.insert(input, {
+        -- value = string.sub(inputString, i ,i),
         value = inputString,
         type  = element.type
       })
+      return true
   elseif table.insert(input, element) then
       return true
   end
@@ -155,6 +151,7 @@ end
 function parse()
   local stackTopElement = getStackTop()
   local inputTopElement = getInputTop()
+  local inputTopElementNonMapped = getInputTop().value
 
   -- Just a quick fix to get the correct value from Terminals list
   if inputTopElement == '$' then
@@ -182,21 +179,25 @@ function parse()
       local nonTerminalPos = nonTerminals[stackTopElement]
       local production     = tablePrediction[nonTerminalPos][terminalPos]
       if production then
+        --Tree.derive(production)
+        -- Parser rules
         popStack()
         if production ~= symbols['empty'] then
           pushStack(production)
+          print('Production:', production)
         end
       else
         return false
       end
     elseif stackTopElement == inputTopElement then
-      popStack()--
+      print('Match:', inputTopElementNonMapped)
+      popStack()
       popInput()
     end
     return parse()
   end
 end
-
+--Tree.initTree('S')
 local isAccepting = true
 while(isAccepting and lexer.hasNextToken()) do
   lineCount = lineCount + 1
@@ -210,12 +211,16 @@ while(isAccepting and lexer.hasNextToken()) do
   initStack()
 
   isAccepting = parse()
-
   if isAccepting then
-    print('Aceitou')
+    print('Linha ' .. lineCount .. ' aceita.')
   else
-    print('Rejeita')
+    print('Linha ' .. lineCount .. ' rejeita.')
   end
 end
 
+--print('-- PARSE TREE --')
+--Tree.print(Tree.getRoot())
+
+--Tree.printLevel(Tree.getRoot().children[1])
+--Tree.printLevel(Tree.getRoot().children[1].children[1])
 --lexer.printTokens()

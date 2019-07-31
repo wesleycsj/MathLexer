@@ -1,0 +1,63 @@
+O parser é um analisador sintático preditivo LL(1)
+
+O parser faz uso dos tokens gerados pelo analisador léxico,
+por isso esse é carregado como módulo da aplicação na linha 4
+
+Nas linhas 10 e 11 são definidos duas estruturas de pilha, stack e input,
+onde todo o processo de parser irá rodar. A stack é responsável por armazenar
+as derivações e o input armazena a entrada do arquivo.
+
+Entre as linhas 13 e 17 é definida uma hash table de simbolos, esses simbolos
+foram mapeados para a tabela de predição e ambas pilhas, apenas uma conveniência
+para facilitar no processo de parsing.
+
+Entre as linhas 19 e 32 é declarada a tabela de predição da linguagem.
+
+Entre as linhas 34 e 45 é definida uma hash table de simbolos terminais da linguagem
+
+Entre as linhas 47 e 55 é definida uma hash table de simbolos não terminais.
+
+Na linha 58 a função initStack() é responsável por inicializar ambas as pilhas,
+inserindo o simbolo `$` em ambas pilhas, e a produção inicial na stack
+
+Na linha 67 a função clearStack() é responsável por limpar ambas as pilhas de forma
+segura.
+
+Na linha 80 a função pushStack() insere uma produção, na ordem correta(invertida)
+na stack.
+
+Na linha 92 a função popStack() remove um elemento do topo da pilha stack
+
+Na linha 102 a função pushInput() insere na pilha input uma table(objeto), caractere à caractere,
+um objeto em formato de token com valor e tipo de dado.
+
+Na linha 117 a função popInput() remove do topo da input um elemento.
+
+As funções getStackTop() e getInputTop(), respectivamente nas linhas 126 e 130, apenas
+retornam o valor do topo de cada pilha
+
+A função printStack() na linha 134 apenas imprime o conteúdo de ambas as pilhas.
+
+A função parse() na linha 151 é responsável por aplicar as regras do autômato de pilha,
+obtendo os elementos dos topos das pilhas, faz o mapeamento dos elementos caso necessário(linha 157),
+na linha 167 verifica os casos óbvios para não aceitar a cadeia, e verifica o único caso que aceita
+a cadeia. A partir da linha 175, verifica se o elemento do topo da stack é não-terminal, se sim, deriva-o e adiciona
+a stack. Caso o elemento seja terminal, verifica se os topos são iguais e os remove da pilha(casando-os), e verifica se
+a derivação é vazia ou nula, assim fazendo uma operação pop na stack ou negando a cadeia, respectivamente. Caso elementos
+terminais sejam diferentes, um erro é gerado informando qual caractere era esperado
+
+O loop while na linha 202 trata-se de um loop para ler linha por linha do fluxo de tokens do lexer. A quantidade de linhas atual é contada.
+é contada.
+
+A linha 204 é a instância do lexer para receber o fluxo de tokens.
+
+Na linha 206 a stack é limpa.
+
+O loop da linha 207 é responsável por obter um fluxo de tokens até um delimitador ser encontrado, insere-os na pilha input e obtém os próximos tokens.
+
+Na linha 211 a stack é inicializada através da função initStack()
+
+Na linha 213 a função parse() é chamada para realizar a análise da sequência de tokens passada, e o retorno
+é armazenado na variável isAccepting, assim armazenando um booleano que informa se a cadeia é valida ou não.
+
+Na linha 214 a condição if-else é responsável por avaliar a variável isAccepting e imprimir se a cadeia foi aceita ou não, e em qual linha se encontra.
