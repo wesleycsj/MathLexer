@@ -3,14 +3,14 @@ local Tree = {}
 local index = 0
 
 function Tree.initTree(rootValue)
-  index = index + 1
   if #Tree < 1 then
     table.insert(Tree, {
       index = index,
       value = rootValue,
-      visited = true,
+      visited = false,
       children = {}
     })
+    index = index + 1
     return true
   else
     print('Could not initialized Tree. Length greater than zero.')
@@ -27,135 +27,88 @@ function Tree.getRoot()
   end
 end
 
-function Tree.putNode(root, value)
-  index = index + 1
-  if root then
-    table.insert(root.children, {
+function Tree.putNode(node, value)
+  if node then
+    table.insert(node.children, {
       index = index,
       value = value,
       visited = false,
       children = {}
     })
+    index = index + 1
     return true
   else
-    print('Could not insert at root element.')
+    print('Could not insert at root element.' .. value)
+    assert()
     return false
   end
 end
 
--- Returns the most recently visited node
-local lastVisitedNode = nil
-function Tree.getLastVisited(root)
-  if root then
-    local leftNode = root.children[1]
-    local centerNode = root.children[2]
-    local rightNode = root.children[3]
-    if root.visited then
---    print(root.value)
-      lastVisitedNode = root
-    end
-    Tree.getLastVisited(leftNode)
-    Tree.getLastVisited(centerNode)
-    Tree.getLastVisited(rightNode)
+function Tree.getUnvisited(node)
+  local left = node.children[1]
+  local center = node.children[2]
+  local right = node.children[3]
+  if not node.visited then
+    return node
+  end
+
+  local nodeunvisited = nil
+  if right and Tree.getUnvisited(right) then
+    nodeunvisited = Tree.getUnvisited(right)
+  end
+  if center and Tree.getUnvisited(center) then
+    nodeunvisited = Tree.getUnvisited(center)
+  end
+  if left and Tree.getUnvisited(left) then
+    nodeunvisited = Tree.getUnvisited(left)
+  end
+  return nodeunvisited
+end
+
+function Tree.postOrder(node)
+  local left = node.children[1]
+  local center = node.children[2]
+  local right = node.children[3]
+  if left then
+    Tree.postOrder(left)
+  end
+  if center then
+    Tree.postOrder(center)
+  end
+  if right then
+    Tree.postOrder(right)
+  end
+  print(node.value)
+end
+
+function Tree.derive(node, production)
+  local lastUnvisited = Tree.getUnvisited(Tree.getRoot())
+  for i = 1, #production do
+    Tree.putNode(node, string.sub(production, i,i))
+  end
+  node.visited = true
+end
+
+function Tree.match(node, input)
+  if node.value ~= input then
+    Tree.derive(node, input)
+  end
+  local newUnvisited = Tree.getUnvisited(Tree.getRoot())
+  if newUnvisited.value == input then
+    newUnvisited.visited = true
   end
 end
 
--- Returns the most recently unvisited node
-local lastUnvisitedNode = nil
-function Tree.getLastUnvisited(root)
-  if root then
-    local leftNode = root.children[1]
-    local centerNode = root.children[2]
-    local rightNode = root.children[3]
-    if root.visited then
---    print(root.value)
-      Tree.getLastUnvisited(rightNode)
-      Tree.getLastUnvisited(centerNode)
-      Tree.getLastUnvisited(leftNode)
-    else
-      lastUnvisitedNode = root
-    end
-  end
-end
+-- Tree.initTree('S')
+-- Tree.derive(Tree.getUnvisited(Tree.getRoot()),'V=E')
+-- Tree.derive(Tree.getUnvisited(Tree.getRoot()),'@')
+-- Tree.match(Tree.getUnvisited(Tree.getRoot()), 'x')
+-- Tree.match(Tree.getUnvisited(Tree.getRoot()), '=')
+-- Tree.derive(Tree.getUnvisited(Tree.getRoot()),'TF')
+-- Tree.derive(Tree.getUnvisited(Tree.getRoot()),'Z')
+-- Tree.derive(Tree.getUnvisited(Tree.getRoot()),'#')
+-- Tree.match(Tree.getUnvisited(Tree.getRoot()), '3')
+-- Tree.match(Tree.getUnvisited(Tree.getRoot()), '&')
+-- Tree.postOrder(Tree.getRoot())
 
-function Tree.getLastVisitedNode()
-  return lastVisitedNode
-end
-
-function Tree.getLastUnvisitedNode()
-  return lastUnvisitedNode
-end
-
-function Tree.isOnlyRoot()
-  return #Tree[1].children == 0
-end
-
---Print the tree
-function Tree.print(root)
-  if root then
-    local leftNode = root.children[1]
-    local centerNode = root.children[2]
-    local rightNode = root.children[3]
-    print('Root ' .. root.value)
-    Tree.print(leftNode)
-    Tree.print(centerNode)
-    Tree.print(rightNode)
-  end
-end
-
-function Tree.printLevel(root)
-  if root then
-    local leftNode = root.children[1]
-    local centerNode = root.children[2]
-    local rightNode = root.children[3]
-    print('Root ' .. root.value)
-    if leftNode then
-      print(leftNode.value)
-    end
-    if centerNode then
-      print(centerNode.value)
-    end
-    if rightNode then
-      print(rightNode.value)
-    end
-  end
-end
-
-function Tree.derive(production)
-  if Tree.isOnlyRoot() then
-    for i=1, #production do
-      print(production)
-      Tree.putNode(Tree.getRoot(), string.sub(production,i,i))
-    end
-  else
-    Tree.getLastUnvisited(Tree.getRoot())
-    local lastunvisited = Tree.getLastUnvisitedNode()
-    for i=1, #production do
-      Tree.putNode(lastunvisited, string.sub(production,i,i))
-    end
-  end
-end
-
-Tree.initTree('root')
-local root = Tree.getRoot()
-
-Tree.putNode(root, 'V')
-Tree[1].children[1].visited = true
-Tree.putNode(Tree[1].children[1], '@')
-Tree[1].children[1].children[1].visited = true
-Tree.putNode(Tree[1].children[1].children[1], 'x')
-Tree[1].children[1].children[1].children[1].visited = true
---Tree[1].children[1].children[1].visited = true
---Tree[1].children[1].children[1].children[1].visited = true
-Tree.putNode(root, '=')
-Tree[1].children[2].visited = true
-Tree.putNode(root, 'E')
-Tree[1].children[3].visited = true
-Tree.putNode(Tree[1].children[3], '+')
-Tree[1].children[3].children[1].visited = false
-
-Tree.getLastVisited(root)
-local x = Tree.getLastVisitedNode()
---print(x.value)
---Tree.print(Tree.getRoot())
 return Tree

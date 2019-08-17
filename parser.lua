@@ -179,25 +179,28 @@ function parse()
       local nonTerminalPos = nonTerminals[stackTopElement]
       local production     = tablePrediction[nonTerminalPos][terminalPos]
       if production then
-        --Tree.derive(production)
-        -- Parser rules
         popStack()
-        if production ~= symbols['empty'] then
+        if production == symbols['empty'] then
+          local lastUnvisited = Tree.getUnvisited(Tree.getRoot())
+          Tree.match(lastUnvisited, symbols['empty'])
+        else
+          local lastUnvisited = Tree.getUnvisited(Tree.getRoot())
+          Tree.derive(lastUnvisited, production)
           pushStack(production)
-          print('Production:', production)
         end
       else
         return false
       end
     elseif stackTopElement == inputTopElement then
-      print('Match:', inputTopElementNonMapped)
+      local lastUnvisited = Tree.getUnvisited(Tree.getRoot())
+      Tree.match(lastUnvisited, inputTopElementNonMapped)
       popStack()
       popInput()
     end
     return parse()
   end
 end
---Tree.initTree('S')
+
 local isAccepting = true
 while(isAccepting and lexer.hasNextToken()) do
   lineCount = lineCount + 1
@@ -210,7 +213,9 @@ while(isAccepting and lexer.hasNextToken()) do
   end
   initStack()
 
+  Tree.initTree('S')
   isAccepting = parse()
+  Tree.postOrder(Tree.getRoot())
   if isAccepting then
     print('Linha ' .. lineCount .. ' aceita.')
   else
@@ -218,9 +223,4 @@ while(isAccepting and lexer.hasNextToken()) do
   end
 end
 
---print('-- PARSE TREE --')
---Tree.print(Tree.getRoot())
-
---Tree.printLevel(Tree.getRoot().children[1])
---Tree.printLevel(Tree.getRoot().children[1].children[1])
 --lexer.printTokens()
